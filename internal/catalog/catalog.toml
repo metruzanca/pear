@@ -1,0 +1,362 @@
+# Pear's curated catalog. One entry per configurable preference.
+#
+# Adding a setting: add an entry here and a test that reads, writes, and reads
+# back the value on a real Mac. No engine changes are needed for defaults-backed
+# settings.
+
+# ---------------------------------------------------------------------------
+# Dock
+# ---------------------------------------------------------------------------
+
+[[setting]]
+id = "dock.autohide"
+description = "Automatically hide the Dock when it is not in use."
+scope = "user"
+adapter = "defaults"
+domain = "com.apple.dock"
+key = "autohide"
+type = "bool"
+restart = ["Dock"]
+risk = "safe"
+
+[[setting]]
+id = "dock.autohide_delay"
+description = "Delay before the Dock slides in after the pointer reaches the edge. Hidden setting with no UI."
+scope = "user"
+adapter = "defaults"
+domain = "com.apple.dock"
+key = "autohide-delay"
+type = "float"
+restart = ["Dock"]
+risk = "safe"
+
+[[setting]]
+id = "dock.autohide_time_modifier"
+description = "Animation duration when the Dock slides in or out. Hidden setting with no UI."
+scope = "user"
+adapter = "defaults"
+domain = "com.apple.dock"
+key = "autohide-time-modifier"
+type = "float"
+restart = ["Dock"]
+risk = "safe"
+
+[[setting]]
+id = "dock.tilesize"
+description = "Dock icon size in pixels."
+scope = "user"
+adapter = "defaults"
+domain = "com.apple.dock"
+key = "tilesize"
+type = "int"
+restart = ["Dock"]
+risk = "safe"
+
+[[setting]]
+id = "dock.magnification"
+description = "Magnify Dock icons when the pointer hovers over them."
+scope = "user"
+adapter = "defaults"
+domain = "com.apple.dock"
+key = "magnification"
+type = "bool"
+restart = ["Dock"]
+risk = "safe"
+
+[[setting]]
+id = "dock.largesize"
+description = "Maximum icon size in pixels while magnification is active."
+scope = "user"
+adapter = "defaults"
+domain = "com.apple.dock"
+key = "largesize"
+type = "int"
+restart = ["Dock"]
+risk = "safe"
+
+[[setting]]
+id = "dock.minimize_effect"
+description = "Window minimize animation."
+scope = "user"
+adapter = "defaults"
+domain = "com.apple.dock"
+key = "mineffect"
+type = "enum"
+values = ["genie", "scale"]
+restart = ["Dock"]
+risk = "safe"
+
+[[setting]]
+id = "dock.position"
+description = "Screen edge the Dock sits on."
+scope = "user"
+adapter = "defaults"
+domain = "com.apple.dock"
+key = "orientation"
+type = "enum"
+values = ["bottom", "left", "right"]
+restart = ["Dock"]
+risk = "safe"
+
+[[setting]]
+id = "dock.show_recents"
+description = "Show recently used applications in the Dock."
+scope = "user"
+adapter = "defaults"
+domain = "com.apple.dock"
+key = "show-recents"
+type = "bool"
+restart = ["Dock"]
+risk = "safe"
+
+[[setting]]
+id = "dock.static_only"
+description = "Only show applications that are explicitly kept in the Dock."
+scope = "user"
+adapter = "defaults"
+domain = "com.apple.dock"
+key = "static-only"
+type = "bool"
+restart = ["Dock"]
+risk = "safe"
+
+[[setting]]
+id = "dock.show_indicators"
+description = "Show a dot under running applications in the Dock."
+scope = "user"
+adapter = "defaults"
+domain = "com.apple.dock"
+key = "show-process-indicators"
+type = "bool"
+restart = ["Dock"]
+risk = "safe"
+
+[[setting]]
+id = "dock.scroll_to_open"
+description = "Scroll on a Dock icon to open the application."
+scope = "user"
+adapter = "defaults"
+domain = "com.apple.dock"
+key = "scroll-to-open"
+type = "bool"
+restart = ["Dock"]
+risk = "safe"
+
+# ---------------------------------------------------------------------------
+# Finder
+# ---------------------------------------------------------------------------
+
+[[setting]]
+id = "finder.show_hidden"
+description = "Show files and folders whose names begin with a dot."
+scope = "user"
+adapter = "defaults"
+domain = "com.apple.finder"
+key = "AppleShowAllFiles"
+type = "bool"
+restart = ["Finder"]
+risk = "safe"
+
+[[setting]]
+id = "finder.show_extensions"
+description = "Always show file extensions in Finder."
+scope = "user"
+adapter = "defaults"
+domain = "com.apple.finder"
+key = "AppleShowAllExtensions"
+type = "bool"
+restart = ["Finder"]
+risk = "safe"
+
+[[setting]]
+id = "finder.show_path_bar"
+description = "Show the path bar at the bottom of Finder windows."
+scope = "user"
+adapter = "defaults"
+domain = "com.apple.finder"
+key = "ShowPathbar"
+type = "bool"
+restart = ["Finder"]
+risk = "safe"
+
+[[setting]]
+id = "finder.show_status_bar"
+description = "Show the status bar at the bottom of Finder windows."
+scope = "user"
+adapter = "defaults"
+domain = "com.apple.finder"
+key = "ShowStatusBar"
+type = "bool"
+restart = ["Finder"]
+risk = "safe"
+
+[[setting]]
+id = "finder.folders_on_top"
+description = "Sort folders before files in Finder windows."
+scope = "user"
+adapter = "defaults"
+domain = "com.apple.finder"
+key = "_FXSortFoldersFirst"
+type = "bool"
+restart = ["Finder"]
+risk = "safe"
+
+[[setting]]
+id = "finder.trash_warning"
+description = "Warn before emptying the Trash from the Finder."
+scope = "user"
+adapter = "defaults"
+domain = "com.apple.finder"
+key = "WarnOnEmptyTrash"
+type = "bool"
+restart = ["Finder"]
+risk = "safe"
+
+[[setting]]
+id = "finder.desktop_icons"
+description = "Show volumes, drives, and files on the desktop."
+scope = "user"
+adapter = "defaults"
+domain = "com.apple.finder"
+key = "CreateDesktop"
+type = "bool"
+restart = ["Finder"]
+risk = "safe"
+
+# ---------------------------------------------------------------------------
+# Keyboard and input
+# ---------------------------------------------------------------------------
+
+[[setting]]
+id = "keyboard.repeat_rate"
+description = "Key repeat interval. Lower values repeat faster."
+scope = "user"
+adapter = "defaults"
+domain = "NSGlobalDomain"
+key = "KeyRepeat"
+type = "int"
+risk = "safe"
+
+[[setting]]
+id = "keyboard.repeat_delay"
+description = "Delay before key repeat starts. Lower values start sooner."
+scope = "user"
+adapter = "defaults"
+domain = "NSGlobalDomain"
+key = "InitialKeyRepeat"
+type = "int"
+risk = "safe"
+
+[[setting]]
+id = "keyboard.press_and_hold"
+description = "Hold a key to see accented character choices instead of repeating the key."
+scope = "user"
+adapter = "defaults"
+domain = "NSGlobalDomain"
+key = "ApplePressAndHoldEnabled"
+type = "bool"
+risk = "safe"
+
+[[setting]]
+id = "input.natural_scroll"
+description = "Use natural scrolling for trackpads and mice."
+scope = "user"
+adapter = "defaults"
+domain = "NSGlobalDomain"
+key = "com.apple.swipescrolldirection"
+type = "bool"
+risk = "safe"
+
+# ---------------------------------------------------------------------------
+# Windows and text
+# ---------------------------------------------------------------------------
+
+[[setting]]
+id = "windows.animations"
+description = "Animate windows and sheets."
+scope = "user"
+adapter = "defaults"
+domain = "NSGlobalDomain"
+key = "NSAutomaticWindowAnimationsEnabled"
+type = "bool"
+risk = "safe"
+
+[[setting]]
+id = "text.autocorrect"
+description = "Automatically correct spelling as you type."
+scope = "user"
+adapter = "defaults"
+domain = "NSGlobalDomain"
+key = "NSAutomaticSpellingCorrectionEnabled"
+type = "bool"
+risk = "safe"
+
+[[setting]]
+id = "text.smart_quotes"
+description = "Replace straight quotes with typographic quotes."
+scope = "user"
+adapter = "defaults"
+domain = "NSGlobalDomain"
+key = "NSAutomaticQuoteSubstitutionEnabled"
+type = "bool"
+risk = "safe"
+
+[[setting]]
+id = "text.smart_dashes"
+description = "Replace double hyphens with dashes."
+scope = "user"
+adapter = "defaults"
+domain = "NSGlobalDomain"
+key = "NSAutomaticDashSubstitutionEnabled"
+type = "bool"
+risk = "safe"
+
+# ---------------------------------------------------------------------------
+# Screenshots
+# ---------------------------------------------------------------------------
+
+[[setting]]
+id = "screenshots.location"
+description = "Directory where screenshots are saved. Supports ~. The directory must already exist."
+scope = "user"
+adapter = "defaults"
+domain = "com.apple.screencapture"
+key = "location"
+type = "path"
+risk = "safe"
+
+[[setting]]
+id = "screenshots.format"
+description = "Image format for screenshots."
+scope = "user"
+adapter = "defaults"
+domain = "com.apple.screencapture"
+key = "type"
+type = "enum"
+values = ["png", "jpg", "pdf", "tiff"]
+risk = "safe"
+
+[[setting]]
+id = "screenshots.disable_shadow"
+description = "Omit the drop shadow around captured windows."
+scope = "user"
+adapter = "defaults"
+domain = "com.apple.screencapture"
+key = "disable-shadow"
+type = "bool"
+risk = "safe"
+
+# ---------------------------------------------------------------------------
+# Menu bar
+# ---------------------------------------------------------------------------
+
+[[setting]]
+id = "menu_bar.clock_seconds"
+description = "Show seconds in the menu bar clock."
+scope = "user"
+adapter = "defaults"
+domain = "com.apple.menuextra.clock"
+key = "ShowSeconds"
+type = "bool"
+restart = ["SystemUIServer", "ControlCenter"]
+risk = "safe"

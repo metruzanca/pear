@@ -1,0 +1,28 @@
+# ~/.config/pear/config.toml
+#
+# Every key is a setting in Pear's catalog. Run `pear list` to see them all.
+# Run `pear explain <setting>` for details.
+
+config_version = 1
+
+[dock]
+autohide = true
+autohide_delay = 0.25
+tilesize = 44
+minimize_effect = "scale"
+
+[finder]
+show_hidden = true
+show_extensions = true
+show_path_bar = true
+folders_on_top = true
+
+[keyboard]
+repeat_rate = 2
+repeat_delay = 15
+press_and_hold = false
+
+[screenshots]
+location = "~/Pictures"
+format = "png"
+disable_shadow = true
