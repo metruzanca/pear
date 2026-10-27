@@ -30,6 +30,15 @@ func writeFile(t *testing.T, dir, name, content string) string {
 	return path
 }
 
+func mustResolve(t *testing.T, path string) string {
+	t.Helper()
+	resolved, err := ResolvePath(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return resolved
+}
+
 func TestLoadValidConfig(t *testing.T) {
 	dir := t.TempDir()
 	path := writeFile(t, dir, "config.toml", `
@@ -133,7 +142,7 @@ func TestLoadErrors(t *testing.T) {
 
 func TestIncludeOverrides(t *testing.T) {
 	dir := t.TempDir()
-	writeFile(t, dir, "base.toml", `
+	base := writeFile(t, dir, "base.toml", `
 config_version = 1
 [dock]
 tilesize = 40
@@ -149,12 +158,83 @@ tilesize = 44
 	if err != nil {
 		t.Fatal(err)
 	}
+	resolvedPath, _ := ResolvePath(path)
+	resolvedBase, _ := ResolvePath(base)
 	if got := cfg.Values["dock.tilesize"]; got != int64(44) {
 		t.Fatalf("dock.tilesize = %#v, want 44", got)
 	}
 	if got := cfg.Values["dock.autohide"]; got != true {
 		t.Fatalf("dock.autohide = %#v, want true", got)
 	}
+	if got := cfg.Origins["dock.tilesize"]; got != resolvedPath {
+		t.Fatalf("dock.tilesize origin = %q, want %q", got, resolvedPath)
+	}
+	if got := cfg.Origins["dock.autohide"]; got != resolvedBase {
+		t.Fatalf("dock.autohide origin = %q, want %q", got, resolvedBase)
+	}
+	if got := cfg.Inherited.Values["dock.tilesize"]; got != int64(40) {
+		t.Fatalf("inherited tilesize = %#v, want 40", got)
+	}
+}
+
+func TestLaterResetOverridesIncludedValue(t *testing.T) {
+	dir := t.TempDir()
+	writeFile(t, dir, "base.toml", `
+[dock]
+autohide = true
+`)
+	path := writeFile(t, dir, "config.toml", `
+config_version = 1
+include = ["base.toml"]
+reset = ["dock.autohide"]
+`)
+	cfg, err := Load(path, testCatalog(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := cfg.Values["dock.autohide"]; ok {
+		t.Fatal("included value survived the root reset")
+	}
+	if len(cfg.Resets) != 1 || cfg.Resets[0] != "dock.autohide" {
+		t.Fatalf("resets = %v, want [dock.autohide]", cfg.Resets)
+	}
+	if cfg.ResetOrigins["dock.autohide"] != mustResolve(t, path) {
+		t.Fatalf("reset origin = %q", cfg.ResetOrigins["dock.autohide"])
+	}
+	if got := cfg.Inherited.Values["dock.autohide"]; got != true {
+		t.Fatalf("inherited value = %#v, want true", got)
+	}
+}
+
+func TestLaterValueOverridesIncludedReset(t *testing.T) {
+	dir := t.TempDir()
+	writeFile(t, dir, "base.toml", `
+reset = ["dock.autohide"]
+`)
+	path := writeFile(t, dir, "config.toml", `
+config_version = 1
+include = ["base.toml"]
+[dock]
+autohide = true
+`)
+	cfg, err := Load(path, testCatalog(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := cfg.Values["dock.autohide"]; got != true {
+		t.Fatalf("dock.autohide = %#v, want true", got)
+	}
+	if cfg.Inherited.HasReset("dock.autohide") != true {
+		t.Fatal("inherited reset missing")
+	}
+	if len(cfg.Resets) != 0 {
+		t.Fatalf("resets = %v, want none", cfg.Resets)
+	}
+}
+
+// StateHasReset is a tiny test helper to keep assertions readable.
+func (c *Config) StateHasReset() bool {
+	return len(c.Resets) == 1 && c.Resets[0] == "dock.autohide"
 }
 
 func TestIncludeThroughSymlink(t *testing.T) {

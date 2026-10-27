@@ -105,3 +105,16 @@ func TestApplyRejectsExtraArgs(t *testing.T) {
 		t.Fatalf("stderr = %q", stderr)
 	}
 }
+
+func TestConfigureRequiresTTY(t *testing.T) {
+	if isTerminal(os.Stdin) && isTerminal(os.Stdout) {
+		t.Skip("running in an interactive terminal")
+	}
+	code, _, stderr := run(t, "configure")
+	if code != 2 {
+		t.Fatalf("exit = %d, want 2", code)
+	}
+	if !strings.Contains(stderr, "interactive terminal") {
+		t.Fatalf("stderr = %q", stderr)
+	}
+}

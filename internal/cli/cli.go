@@ -14,11 +14,15 @@ import (
 	"strings"
 	"text/tabwriter"
 
+	"golang.org/x/term"
+
+	"github.com/metru/pear/internal/adapter"
 	"github.com/metru/pear/internal/adapter/defaults"
 	"github.com/metru/pear/internal/catalog"
 	"github.com/metru/pear/internal/config"
 	"github.com/metru/pear/internal/engine"
 	"github.com/metru/pear/internal/state"
+	"github.com/metru/pear/internal/tui"
 	"github.com/metru/pear/internal/value"
 )
 
@@ -31,6 +35,7 @@ usage:
   pear apply [flags]        apply the config (writes changed settings)
   pear plan [flags]         show pending changes without writing
   pear validate [flags]     parse and validate the config
+  pear configure [flags]    interactively edit the config
   pear list [flags]         list the catalog
   pear explain <setting>    explain one setting
   pear doctor [flags]       check the config, catalog, and environment
@@ -45,6 +50,10 @@ flags (most commands):
 apply/plan flags:
   --dry-run       plan only (apply)
   --json          machine-readable output
+
+configure flags:
+  --config PATH   config file (default: $PEAR_CONFIG or ~/.config/pear/config.toml)
+  --only PREFIX   limit to an id or group, comma separated
 `
 
 type command struct {
@@ -75,6 +84,8 @@ func Run(args []string, stdout, stderr io.Writer) int {
 		return cmd.plan(args[1:])
 	case "validate":
 		return cmd.validate(args[1:])
+	case "configure", "configur":
+		return cmd.configure(args[1:])
 	case "list":
 		return cmd.list(args[1:])
 	case "explain":
@@ -277,6 +288,52 @@ func (c *command) validate(args []string) int {
 	fmt.Fprintf(c.stdout, "Config OK: %s\n", cfg.Path)
 	fmt.Fprintf(c.stdout, "  %d setting(s), %d reset(s)\n", len(cfg.Values), len(cfg.Resets))
 	return 0
+}
+
+func (c *command) configure(args []string) int {
+	fs := newFlagSet("configure", c.stderr)
+	path := fs.String("config", "", "config file")
+	only := fs.String("only", "", "limit to id or group")
+	if !parseFlags(fs, args, c.stderr) {
+		return 2
+	}
+	if fs.NArg() > 0 {
+		c.errorf("configure: unexpected argument %q", fs.Arg(0))
+		return 2
+	}
+	if !isTerminal(os.Stdin) || !isTerminal(os.Stdout) {
+		c.errorf("configure requires an interactive terminal")
+		return 2
+	}
+	if !c.loadCatalog() {
+		return 2
+	}
+
+	explicit := *path != "" || strings.TrimSpace(os.Getenv("PEAR_CONFIG")) != ""
+	resolved := resolveConfig(*path)
+	canApply := runtime.GOOS == "darwin"
+	var defaultsAdapter adapter.Adapter
+	if canApply {
+		defaultsAdapter = defaults.New()
+	}
+
+	err := tui.Run(tui.Options{
+		Catalog:     c.cat,
+		ConfigPath:  resolved,
+		Only:        splitOnly(*only),
+		AllowCreate: !explicit,
+		Adapter:     defaultsAdapter,
+		CanApply:    canApply,
+	})
+	if err != nil {
+		c.errorf("%v", err)
+		return 2
+	}
+	return 0
+}
+
+func isTerminal(f *os.File) bool {
+	return term.IsTerminal(int(f.Fd()))
 }
 
 func (c *command) list(args []string) int {

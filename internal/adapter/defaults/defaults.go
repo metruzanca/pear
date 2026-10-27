@@ -68,6 +68,13 @@ func (a *Adapter) Supports(scope string) bool {
 	return scope == "user" || scope == "host"
 }
 
+// Refresh clears cached domains so the next reads see external changes.
+func (a *Adapter) Refresh() {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	a.cache = make(map[string]*domain)
+}
+
 // Read implements adapter.Adapter.
 func (a *Adapter) Read(ctx context.Context, setting catalog.Setting) (any, bool, error) {
 	if !a.Supports(setting.Scope) {

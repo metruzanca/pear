@@ -136,6 +136,25 @@ func TestReadCachesDomain(t *testing.T) {
 	}
 }
 
+func TestRefreshClearsCache(t *testing.T) {
+	data := exportPlist(t, map[string]any{"autohide": true})
+	runner := &fakeRunner{respond: func(string, []string) ([]byte, []byte, error) {
+		return data, nil, nil
+	}}
+	adapter := newAdapter(runner)
+	setting := mustSetting(t, "dock.autohide")
+	if _, _, err := adapter.Read(context.Background(), setting); err != nil {
+		t.Fatal(err)
+	}
+	adapter.Refresh()
+	if _, _, err := adapter.Read(context.Background(), setting); err != nil {
+		t.Fatal(err)
+	}
+	if calls := runner.count(); calls != 2 {
+		t.Fatalf("calls = %d, want 2", calls)
+	}
+}
+
 func TestReadMissingDomain(t *testing.T) {
 	runner := &fakeRunner{respond: func(string, []string) ([]byte, []byte, error) {
 		return nil, []byte("Domain com.apple.dock does not exist"), errors.New("exit status 1")

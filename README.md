@@ -61,6 +61,7 @@ Release binaries and a Homebrew tap are not available yet.
 | `pear apply` | Apply the config. Idempotent; prints the plan first. |
 | `pear plan` | Show changes without writing. Exits 1 when changes exist. |
 | `pear validate` | Parse and validate the config. Works on Linux. |
+| `pear configure` | Interactively edit the config in a TUI. `pear configur` is an alias. |
 | `pear list` | List the catalog. `--json` for machines, `--scope user` to filter. |
 | `pear explain <id>` | Show what a setting maps to, including its current value. |
 | `pear doctor` | Check the config, catalog, state directory, and tools. |
@@ -70,9 +71,31 @@ Release binaries and a Homebrew tap are not available yet.
 Useful flags:
 
 - `--config PATH` or `PEAR_CONFIG` to point at another file.
-- `--only dock,finder` to limit an apply or plan to one or more catalog groups.
+- `--only dock,finder` to limit an apply, plan, or configure session to one or
+  more catalog groups.
 - `--dry-run` on `apply`.
 - `--json` on `apply`, `plan`, and `list`.
+
+## Interactive editor
+
+`pear configure` opens a TUI for the config. It works anywhere Go runs (the
+macOS current-value column only appears on macOS).
+
+- `↑`/`↓` move, `PgUp`/`PgDn` page, `Home`/`End` jump.
+- `Enter` edits, `Esc` cancels.
+- `/` searches, `Tab` cycles All / Configured / Unset / Pending.
+- `u` removes a value from the config; `x` adds a reset (with confirmation).
+- `ctrl+s` saves, `ctrl+r` refreshes macOS values, `q` quits.
+
+Values use typed editors: selects for bools and enums, validated inputs for
+numbers, strings, and paths, and a multi-line editor for lists. Arrow keys only:
+there are no `h`/`j`/`k`/`l`/`g`/`G` bindings.
+
+Saving patches only the edited keys, so comments and unrelated formatting
+survive. Each save is backed up under
+`~/.local/state/pear/config-backups/<timestamp>/`, validated, then written
+atomically. After a successful save the TUI offers to apply the changes with
+the same snapshot and verification path as `pear apply`.
 
 ## Config discovery
 
@@ -84,9 +107,11 @@ Pear looks in this order:
 4. `~/.config/pear/config.toml`
 
 An optional `include = ["modules/dock.toml"]` list loads files relative to the
-including file. Values in the including file override its includes, so a base
-config can be shared and overridden per machine. `reset = ["dock.tilesize"]`
-deletes a setting; absent keys are simply unmanaged.
+including file. Includes apply in order, then the including file. A value in a
+later file cancels an earlier reset, and a reset in a later file cancels an
+earlier value. Setting and resetting the same key within one file is an error.
+`reset = ["dock.tilesize"]` deletes a setting on apply; absent keys are simply
+unmanaged.
 
 Every root file must declare `config_version = 1`; included files may omit it.
 
@@ -103,6 +128,9 @@ Every root file must declare `config_version = 1`; included files may omit it.
   Pear never runs `killall cfprefsd`.
 - The catalog is the API. Adding a setting is a data change plus a test that
   proves read/write/read-back on a real Mac.
+- The interactive editor never writes the config until `ctrl+s`, keeps a
+  timestamped backup of the previous file, and refuses to replace it if the
+  edited result does not validate.
 
 ## Current scope
 
